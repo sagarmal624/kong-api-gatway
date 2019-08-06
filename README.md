@@ -80,3 +80,5 @@ docker run -d --name=transaction --network=kong-net transaction
 
 ## Services,Routes,Plugins,Consumers
                          https://docs.konghq.com/0.13.x/getting-started/configuring-a-service/
+                         https://github.com/faren/NodeJS-API-KONG/blob/master/Kong.postman_collection.json
+                         
