@@ -1,6 +1,60 @@
 # Kong
+Kong is an API gateway and platform. That means it is a form of middleware between computing clients and your API-based applications. Kong easily and consistently extends the features of your APIs. Some of the popular features deployed through Kong include authentication, security, traffic control, serverless, analytics & monitoring, request/response transformations and logging.
+## Why Use KONG?
+Compared to other API gateways and platforms, Kong has many important advantages that are not found in the market today. Choose Kong to ensure your API gateway platform is:
 
-Kong is a cloud-native, fast, scalable, and distributed Microservice Abstraction Layer (also known as an API Gateway, API Middleware or in some cases Service Mesh).
+Radically Extensible
+Blazingly Fast
+Open Source
+Platform Agnostic
+Cloud Native
+RESTful
+These Kong advantages apply to both Kong and Kong Enterprise . The full set of Kong functionality is described in the publicly available documentation.
+
+## How Does Kong Work?
+A typical Kong setup is made of two main components:
+
+Kong’s server, based on the widely adopted NGINX HTTP server, which is a reverse proxy processing your clients’ requests to your upstream services.
+Kong’s datastore, in which the configuration is stored to allow you to horizontally scale Kong nodes. Apache Cassandra and PostgreSQL can be used to fulfill this role.
+Kong needs to have both these components set up and operational.
+
+ 
+
+### Kong server
+The Kong Server, built on top of NGINX, is the server that will actually process the API requests and execute the configured plugins to provide additional functionalities to the underlying APIs before proxying the request upstream.
+
+Kong listens on several ports that must allow external traffic and are by default:
+
+8000 for proxying. This is where Kong listens for HTTP traffic. See proxy_listen.
+8443 for proxying HTTPS traffic. See proxy_listen_ssl.
+Additionally, those ports are used internally and should be firewalled in production usage:
+
+8001 provides Kong’s Admin API that you can use to operate Kong. See admin_api_listen.
+8444 provides Kong’s Admin API over HTTPS. See admin_api_ssl_listen.
+You can use the Admin API to configure Kong, create new users, enable or disable plugins, and a handful of other operations. Since you will be using this RESTful API to operate Kong, it is also extremely easy to integrate Kong with existing systems.
+
+### Kong datastore
+Kong uses an external datastore to store its configuration such as registered APIs, Consumers and Plugins. Plugins themselves can store every bit of information they need to be persisted, for example rate-limiting data or Consumer credentials.
+
+Kong maintains a cache of this data so that there is no need for a database roundtrip while proxying requests, which would critically impact performance. This cache is invalidated by the inter-node communication when calls to the Admin API are made. As such, it is discouraged to manipulate Kong’s datastore directly, since your nodes cache won’t be properly invalidated.
+
+This architecture allows Kong to scale horizontally by simply adding new nodes that will connect to the same datastore and maintain their own cache.
+## WHICH DATASTORES ARE SUPPORTED?
+Apache Cassandra
+PostgreSQL
+
+## HOW DOES IT SCALE?
+### Kong Server
+Scaling the Kong Server up or down is fairly easy. Each server is stateless meaning you can add or remove as many nodes under the load balancer as you want as long as they point to the same datastore.
+
+Be aware that terminating a node might interrupt any ongoing HTTP requests on that server, so you want to make sure that before terminating the node, all HTTP requests have been processed.
+
+### Kong datastore
+Scaling the datastore should not be your main concern, mostly because as mentioned before, Kong maintains its own cache, so expect your datastore’s traffic to be relatively quiet.
+
+However, keep it mind that it is always a good practise to ensure your infrastructure does not contain single points of failure (SPOF). As such, closely monitor your datastore, and ensure replication of your data.
+
+If you use Cassandra, one of its main advantages is its easy-to-use replication capabilities due to its distributed nature. Make sure to read the documentation pointed out by the Cassandra section of this FAQ.
 
 ## Kong Docker Installation
 1 - Create a docker network — this network will be use for kong and our API server
